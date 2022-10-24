@@ -1,0 +1,7 @@
+venv/*
+product_list.csv
+product_list.xlsx
+products_track.csv
+products_track.xlsx
+bs_checker.py
+crawler_example.py
