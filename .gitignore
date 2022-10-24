@@ -1,6 +1,6 @@
 venv/*
-product_list.csv
-product_list.xlsx
+PriceCheckFiles/product_list.csv
+PriceCheckFiles/product_list.xlsx
 products_track.csv
 products_track.xlsx
 bs_checker.py

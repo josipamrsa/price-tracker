@@ -1,16 +1,19 @@
+# PRICE CHECKER TOOL
+
 import config
 
 import datetime
+import os
 from io import StringIO
 
 import pandas as pd
 import requests
+import easygui
 
 from bs4 import BeautifulSoup
 from price_parser import Price
 from win10toast import ToastNotifier
 
-# PRICE CHECKER TOOL
 
 def timestamped(msg):
     date_format = '%Y-%m-%d %H:%M:%S'
@@ -18,9 +21,11 @@ def timestamped(msg):
     print(ts + " " + msg)
 
 
-def get_urls(csv_file):
+def get_urls():
+    path = easygui.fileopenbox()
     io = ""
-    with open(config.PRODUCT_URL_CSV) as csv:
+
+    with open(path) as csv:
         io = StringIO(csv.read().replace(';', ','))
 
     df = pd.read_csv(io)
@@ -49,39 +54,54 @@ def process_products(df):
     return pd.DataFrame(updated_products)
 
 
-def main():
-    # TODO - CHANGE TO EASYGUI OR PANDAS NATIVE DIALOG
-    timestamped("PRICE TRACKER")
-
-    timestamped("Fetching URLs for DataFrame...")
-    df = get_urls(config.PRODUCT_URL_CSV)
-    timestamped("Processing products and updating DataFrame...")
-    df_updated = process_products(df)
-
-    timestamped("DataFrame updated!")
-
+def send_notification(df):
     toaster = ToastNotifier()
-    offers_available = sum(list(df_updated["alert"]))
-    count_offers = sum([int(alert) for alert in list(df_updated["alert"])])
+    offers_available = sum(list(df["alert"]))
+    count_offers = sum([int(alert) for alert in list(df["alert"])])
 
     if offers_available:
         toaster.show_toast("Price checker: New offers available!",
                            f'{count_offers} new offers available for selected products.')
 
-    timestamped("Saving to CSV and XLSX formats...")
+
+def export_data(df):
+    cwd = os.getcwd() + "\\PriceCheckFiles"
+    if not os.path.exists(cwd):
+        os.mkdir(cwd)
+
+    file_csv = cwd + "\\" + "products_track.csv"
+    file_xlsx = cwd + "\\" + "products_track.xlsx"
+
     if config.SAVE_TO_CSV:
-        df_updated.to_csv(
-            config.PRICES_CSV,
+        df.to_csv(
+            file_csv,
             index=False,
             mode="a"
         )
 
-        df_updated.to_excel(
-            config.PRICES_XLSX,
+        df.to_excel(
+            file_xlsx,
             index=False,
             header=True
         )
 
+
+def main():
+    timestamped("PRICE TRACKER")
+
+    timestamped("Fetching URLs for DataFrame...")
+    df = get_urls()
+
+    timestamped("Processing products and updating DataFrame...")
+    df_updated = process_products(df)
+    timestamped("DataFrame updated!")
+
+    print(df_updated)
+
+    send_notification(df_updated)
+
+    timestamped("Saving to CSV and XLSX formats...")
+    export_data(df_updated)
     timestamped("Success!")
 
 
