@@ -2,8 +2,11 @@
 
 import config
 
-import datetime
 import os
+import time
+import socket
+import datetime
+
 from io import StringIO
 
 import pandas as pd
@@ -22,7 +25,10 @@ def timestamped(msg):
 
 
 def get_urls():
-    path = easygui.fileopenbox()
+    # TODO - args
+    # path = easygui.fileopenbox()
+
+    path = cwd = os.getcwd() + "\\PriceCheckFiles\\" + config.PRODUCT_URL_CSV
     io = ""
 
     with open(path) as csv:
@@ -86,8 +92,24 @@ def export_data(df):
         )
 
 
+def check_if_connected():
+    try:
+        socket.create_connection(("1.1.1.1", 53))
+        return True
+    except OSError:
+        pass
+    return False
+
+
 def main():
     timestamped("PRICE TRACKER")
+    time.sleep(10)
+
+    timestamped("Checking Internet connection...")
+    while not check_if_connected():
+        timestamped("No internet connection - retrying...")
+        time.sleep(30)
+    timestamped("Internet connection established - continuing...")
 
     timestamped("Fetching URLs for DataFrame...")
     df = get_urls()
@@ -107,4 +129,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    input("Press Enter to close...")
 

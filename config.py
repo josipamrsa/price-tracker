@@ -8,7 +8,7 @@ OFFERS_AVAILABLE = 0
 PRICE_SELECTORS = {
     'links' : ".priceDivTableDetails span.pricePart",
     'svijetmedija' : ".product-page-card-price div",
-    'zutiklik' : ".price-value-76131",
+    'zutiklik' : ".product-price span",
     'aviteh' : ".side-price-original",
     'mcomp' : ".price .mainprice",
     'anigota' : ".price .mainprice"
